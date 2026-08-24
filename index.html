@@ -3,219 +3,766 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
 <title>Nissan V-Drive 2026 en 360° | ViewMetricaMX</title>
-<meta name="description" content="Explora una demostración interactiva en 360° del Nissan V-Drive 2026 desarrollada por ViewMetricaMX.">
+
+<meta
+  name="description"
+  content="Explora una demostración interactiva en 360° del Nissan V-Drive 2026 desarrollada por ViewMetricaMX."
+>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<link
+  href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+  rel="stylesheet"
+>
+
 <link rel="icon" href="favicon.ico" type="image/x-icon">
+
 <link rel="stylesheet" href="style.css">
+
 </head>
+
 <body>
 
-<!-- ============ HEADER ============ -->
+<!-- =========================================================
+     HEADER
+========================================================= -->
+
 <header class="site-header">
+
   <div class="header-inner">
+
     <span class="brand-mark">
-      <svg class="brand-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
-        <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.2"/>
-        <circle cx="12" cy="12" r="1.6" fill="currentColor"/>
-        <path d="M12 3 V6 M12 18 V21 M3 12 H6 M18 12 H21" stroke="currentColor" stroke-width="1.2"/>
+
+      <svg
+        class="brand-icon"
+        viewBox="0 0 24 24"
+        width="18"
+        height="18"
+        aria-hidden="true"
+      >
+        <circle
+          cx="12"
+          cy="12"
+          r="9"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.2"
+        />
+
+        <circle
+          cx="12"
+          cy="12"
+          r="1.6"
+          fill="currentColor"
+        />
+
+        <path
+          d="M12 3 V6 M12 18 V21 M3 12 H6 M18 12 H21"
+          stroke="currentColor"
+          stroke-width="1.2"
+        />
       </svg>
+
       VIEWMETRICA<span class="brand-suffix">MX</span>
+
     </span>
-    <span class="header-tag">DEMO CONCEPTUAL</span>
+
+    <span class="header-tag">
+      DEMO CONCEPTUAL
+    </span>
+
   </div>
+
 </header>
+
 
 <main>
 
-  <!-- ============ SECCIÓN 1 — HERO ============ -->
-  <section class="hero" id="hero" aria-label="Introducción">
-    <div class="hero-scan" aria-hidden="true"></div>
-    <div class="hero-inner">
-      <p class="eyebrow">DEMO 360° · VIEWMETRICAMX</p>
-      <h1 class="hero-title">Explora el Nissan V-Drive 2026 en 360°</h1>
-      <p class="hero-sub">Una nueva forma de presentar un vehículo antes de que el cliente llegue a la agencia.</p>
-      <a href="#viewer" class="btn btn-primary" id="hero-cta">
-        <span>EXPLORAR EN 360°</span>
-        <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16m0 0l-6-6m6 6l6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </a>
-    </div>
-    <div class="hero-coords" aria-hidden="true">25.5428° N · 103.4970° W — COMARCA LAGUNERA</div>
-  </section>
+<!-- =========================================================
+     HERO
+========================================================= -->
 
-  <!-- ============ SECCIÓN 2 — VISOR 360° ============ -->
-  <section class="viewer-section" id="viewer" aria-label="Visor 360 grados">
-    <div class="section-head">
-      <p class="eyebrow">01 · RECORRIDO INTERACTIVO</p>
-      <h2>Recorre el vehículo desde adentro</h2>
-    </div>
+<section
+  class="hero"
+  id="hero"
+  aria-label="Introducción"
+>
 
-    <div class="viewer-shell">
-      <div class="viewer-stage" id="viewer-stage">
-        <canvas id="pano-canvas" aria-label="Visor panorámico 360 grados del interior del Nissan V-Drive 2026"></canvas>
+  <div
+    class="hero-scan"
+    aria-hidden="true"
+  ></div>
 
-        <!-- fallback for no-webgl -->
-        <div class="viewer-fallback" id="viewer-fallback" hidden>
-          <img id="fallback-img" alt="Vista del interior del Nissan V-Drive 2026">
-          <p>Tu navegador no soporta la vista 360° interactiva. Se muestra una vista estática.</p>
-        </div>
+  <div class="hero-inner">
 
-        <!-- loading indicator -->
-        <div class="viewer-loading" id="viewer-loading" aria-live="polite">
-          <span class="loading-ring" aria-hidden="true"></span>
-          <span class="loading-label">Preparando panorama…</span>
-        </div>
+    <p class="eyebrow">
+      DEMO 360° · VIEWMETRICAMX
+    </p>
 
-        <!-- drag hint -->
-        <div class="drag-hint" id="drag-hint" aria-hidden="true">
-          <svg width="18" height="18" viewBox="0 0 24 24"><path d="M8 9l-4 3 4 3M16 9l4 3-4 3M4 12h16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <span>Arrastra para explorar</span>
-        </div>
+    <h1 class="hero-title">
+      Explora el Nissan V-Drive 2026 en 360°
+    </h1>
 
-        <!-- current position label -->
-        <div class="pos-tag" id="pos-tag">PILOTO</div>
+    <p class="hero-sub">
+      Una nueva forma de presentar un vehículo antes de que el cliente llegue a la agencia.
+    </p>
 
-        <!-- top-right controls: zoom / fullscreen / recenter -->
-        <div class="viewer-controls" role="group" aria-label="Controles del visor">
-          <button type="button" class="ctrl-btn" id="zoom-in" aria-label="Acercar zoom">
-            <svg width="16" height="16" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-          </button>
-          <button type="button" class="ctrl-btn" id="zoom-out" aria-label="Alejar zoom">
-            <svg width="16" height="16" viewBox="0 0 24 24"><path d="M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-          </button>
-          <button type="button" class="ctrl-btn" id="recenter" aria-label="Recentrar vista">
-            <svg width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-          </button>
-          <button type="button" class="ctrl-btn" id="fullscreen-btn" aria-label="Pantalla completa">
-            <svg width="16" height="16" viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
-        </div>
+    <a
+      href="#viewer"
+      class="btn btn-primary"
+      id="hero-cta"
+    >
+
+      <span>
+        EXPLORAR EN 360°
+      </span>
+
+      <svg
+        width="14"
+        height="14"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+      >
+        <path
+          d="M12 4v16m0 0l-6-6m6 6l6-6"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+
+    </a>
+
+  </div>
+
+  <div
+    class="hero-coords"
+    aria-hidden="true"
+  >
+    25.5428° N · 103.4970° W — COMARCA LAGUNERA
+  </div>
+
+</section>
+
+
+<!-- =========================================================
+     VISOR 360°
+========================================================= -->
+
+<section
+  class="viewer-section"
+  id="viewer"
+  aria-label="Visor 360 grados"
+>
+
+  <div class="section-head">
+
+    <p class="eyebrow">
+      01 · RECORRIDO INTERACTIVO
+    </p>
+
+    <h2>
+      Recorre el vehículo desde adentro
+    </h2>
+
+  </div>
+
+
+  <div class="viewer-shell">
+
+    <div
+      class="viewer-stage"
+      id="viewer-stage"
+      tabindex="0"
+    >
+
+      <!-- Canvas utilizado por Three.js -->
+      <canvas
+        id="pano-canvas"
+        aria-label="Visor panorámico 360 grados del Nissan V-Drive 2026"
+      ></canvas>
+
+
+      <!-- ===================================================
+           FALLBACK
+      ==================================================== -->
+
+      <div
+        class="viewer-fallback"
+        id="viewer-fallback"
+        hidden
+      >
+
+        <img
+          id="fallback-img"
+          alt="Vista panorámica del Nissan V-Drive 2026"
+        >
+
+        <p id="fallback-message">
+          No fue posible iniciar el visor 360°.
+        </p>
+
       </div>
 
-      <!-- position navigation -->
-      <nav class="pos-nav" aria-label="Selecciona una posición dentro del vehículo">
-        <button type="button" class="pos-btn is-active" data-pos="piloto" aria-pressed="true">
-          <span class="pos-btn-index">01</span><span class="pos-btn-label">PILOTO</span>
+
+      <!-- ===================================================
+           LOADING
+      ==================================================== -->
+
+      <div
+        class="viewer-loading"
+        id="viewer-loading"
+        aria-live="polite"
+      >
+
+        <span
+          class="loading-ring"
+          aria-hidden="true"
+        ></span>
+
+        <span class="loading-label">
+          Preparando panorama…
+        </span>
+
+      </div>
+
+
+      <!-- ===================================================
+           DRAG HINT
+      ==================================================== -->
+
+      <div
+        class="drag-hint"
+        id="drag-hint"
+        aria-hidden="true"
+      >
+
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M8 9l-4 3 4 3M16 9l4 3-4 3M4 12h16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.6"
+            stroke-linecap="round"
+          />
+        </svg>
+
+        <span>
+          Arrastra para explorar
+        </span>
+
+      </div>
+
+
+      <!-- ===================================================
+           POSITION TAG
+      ==================================================== -->
+
+      <div
+        class="pos-tag"
+        id="pos-tag"
+      >
+        PILOTO
+      </div>
+
+
+      <!-- ===================================================
+           CONTROLES
+      ==================================================== -->
+
+      <div
+        class="viewer-controls"
+        role="group"
+        aria-label="Controles del visor"
+      >
+
+        <!-- Zoom + -->
+
+        <button
+          type="button"
+          class="ctrl-btn"
+          id="zoom-in"
+          aria-label="Acercar zoom"
+        >
+
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M12 5v14M5 12h14"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+          </svg>
+
         </button>
-        <button type="button" class="pos-btn" data-pos="copiloto" aria-pressed="false">
-          <span class="pos-btn-index">02</span><span class="pos-btn-label">COPILOTO</span>
+
+
+        <!-- Zoom - -->
+
+        <button
+          type="button"
+          class="ctrl-btn"
+          id="zoom-out"
+          aria-label="Alejar zoom"
+        >
+
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M5 12h14"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+          </svg>
+
         </button>
-        <button type="button" class="pos-btn" data-pos="interior" aria-pressed="false">
-          <span class="pos-btn-index">03</span><span class="pos-btn-label">INTERIOR</span>
+
+
+        <!-- Recenter -->
+
+        <button
+          type="button"
+          class="ctrl-btn"
+          id="recenter"
+          aria-label="Recentrar vista"
+        >
+
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+          >
+
+            <circle
+              cx="12"
+              cy="12"
+              r="3"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+            />
+
+            <path
+              d="M12 2v4M12 18v4M2 12h4M18 12h4"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+            />
+
+          </svg>
+
         </button>
-        <button type="button" class="pos-btn" data-pos="trasera" aria-pressed="false">
-          <span class="pos-btn-index">04</span><span class="pos-btn-label">TRASERA</span>
+
+
+        <!-- Fullscreen -->
+
+        <button
+          type="button"
+          class="ctrl-btn"
+          id="fullscreen-btn"
+          aria-label="Pantalla completa"
+        >
+
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+          >
+
+            <path
+              d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+
+          </svg>
+
         </button>
-      </nav>
-    </div>
-  </section>
 
-  <!-- ============ SECCIÓN 3 — EXPERIENCIA ============ -->
-  <section class="experience" aria-label="La experiencia">
-    <div class="section-head">
-      <p class="eyebrow">02 · POR QUÉ IMPORTA</p>
-      <h2>Una fotografía. Una experiencia completa.</h2>
-    </div>
-    <p class="experience-copy">Con una captura 360° el cliente puede explorar el espacio del vehículo, observar el interior y tener una percepción mucho más cercana a una visita física.</p>
+      </div>
 
-    <div class="benefit-grid">
-      <div class="benefit">
-        <span class="benefit-mark" aria-hidden="true"></span>
-        <h3>Más interacción</h3>
-      </div>
-      <div class="benefit">
-        <span class="benefit-mark" aria-hidden="true"></span>
-        <h3>Mayor percepción del producto</h3>
-      </div>
-      <div class="benefit">
-        <span class="benefit-mark" aria-hidden="true"></span>
-        <h3>Una experiencia diferente en Google, web y canales digitales</h3>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ SECCIÓN 4 — APLICACIÓN COMERCIAL ============ -->
-  <section class="commercial" aria-label="Aplicación comercial">
-    <div class="section-head">
-      <p class="eyebrow">03 · APLICACIÓN</p>
-      <h2>¿Qué podría hacer una agencia con esto?</h2>
     </div>
 
-    <div class="app-grid">
-      <div class="app-item">
-        <span class="app-index">01</span>
-        <h3>Presentación de vehículos</h3>
-      </div>
-      <div class="app-item">
-        <span class="app-index">02</span>
-        <h3>Inventario digital</h3>
-      </div>
-      <div class="app-item">
-        <span class="app-index">03</span>
-        <h3>Redes sociales y campañas</h3>
-      </div>
-      <div class="app-item">
-        <span class="app-index">04</span>
-        <h3>Experiencias inmersivas para clientes</h3>
-      </div>
+
+    <!-- =====================================================
+         POSITION NAVIGATION
+    ====================================================== -->
+
+    <nav
+      class="pos-nav"
+      aria-label="Selecciona una posición dentro del vehículo"
+    >
+
+      <button
+        type="button"
+        class="pos-btn is-active"
+        data-pos="piloto"
+        aria-pressed="true"
+      >
+
+        <span class="pos-btn-index">
+          01
+        </span>
+
+        <span class="pos-btn-label">
+          PILOTO
+        </span>
+
+      </button>
+
+
+      <button
+        type="button"
+        class="pos-btn"
+        data-pos="copiloto"
+        aria-pressed="false"
+      >
+
+        <span class="pos-btn-index">
+          02
+        </span>
+
+        <span class="pos-btn-label">
+          COPILOTO
+        </span>
+
+      </button>
+
+
+      <button
+        type="button"
+        class="pos-btn"
+        data-pos="interior"
+        aria-pressed="false"
+      >
+
+        <span class="pos-btn-index">
+          03
+        </span>
+
+        <span class="pos-btn-label">
+          INTERIOR
+        </span>
+
+      </button>
+
+
+      <button
+        type="button"
+        class="pos-btn"
+        data-pos="trasera"
+        aria-pressed="false"
+      >
+
+        <span class="pos-btn-index">
+          04
+        </span>
+
+        <span class="pos-btn-label">
+          TRASERA
+        </span>
+
+      </button>
+
+    </nav>
+
+  </div>
+
+</section>
+
+
+<!-- =========================================================
+     EXPERIENCIA
+========================================================= -->
+
+<section
+  class="experience"
+  aria-label="La experiencia"
+>
+
+  <div class="section-head">
+
+    <p class="eyebrow">
+      02 · POR QUÉ IMPORTA
+    </p>
+
+    <h2>
+      Una fotografía. Una experiencia completa.
+    </h2>
+
+  </div>
+
+  <p class="experience-copy">
+    Con una captura 360° el cliente puede explorar el espacio del vehículo, observar el interior y tener una percepción mucho más cercana a una visita física.
+  </p>
+
+
+  <div class="benefit-grid">
+
+    <div class="benefit">
+
+      <span
+        class="benefit-mark"
+        aria-hidden="true"
+      ></span>
+
+      <h3>
+        Más interacción
+      </h3>
+
     </div>
 
-    <p class="commercial-note">El mismo concepto puede aplicarse a vehículos nuevos, seminuevos, áreas de exhibición y espacios de la agencia.</p>
-  </section>
 
-  <!-- ============ SECCIÓN 5 — CTA ============ -->
-  <section class="cta" aria-label="Llamado a la acción">
-    <div class="cta-scan" aria-hidden="true"></div>
-    <div class="cta-inner">
-      <p class="eyebrow">04 · SIGUIENTE PASO</p>
-      <h2>Esto es solo una muestra.</h2>
-      <p class="cta-copy">ViewMetricaMX transforma espacios físicos en experiencias digitales interactivas.</p>
-      <a href="#" class="btn btn-primary" id="whatsapp-cta">
-        <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.6 6.3A8.9 8.9 0 0012 4a8.9 8.9 0 00-7.7 13.4L3 21l3.7-1.3A8.9 8.9 0 0012 20a8.9 8.9 0 006.3-15.2z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
-        <span>QUIERO UNA DEMO</span>
-      </a>
+    <div class="benefit">
+
+      <span
+        class="benefit-mark"
+        aria-hidden="true"
+      ></span>
+
+      <h3>
+        Mayor percepción del producto
+      </h3>
+
     </div>
-  </section>
+
+
+    <div class="benefit">
+
+      <span
+        class="benefit-mark"
+        aria-hidden="true"
+      ></span>
+
+      <h3>
+        Una experiencia diferente en Google, web y canales digitales
+      </h3>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =========================================================
+     APLICACIÓN COMERCIAL
+========================================================= -->
+
+<section
+  class="commercial"
+  aria-label="Aplicación comercial"
+>
+
+  <div class="section-head">
+
+    <p class="eyebrow">
+      03 · APLICACIÓN
+    </p>
+
+    <h2>
+      ¿Qué podría hacer una agencia con esto?
+    </h2>
+
+  </div>
+
+
+  <div class="app-grid">
+
+    <div class="app-item">
+
+      <span class="app-index">
+        01
+      </span>
+
+      <h3>
+        Presentación de vehículos
+      </h3>
+
+    </div>
+
+
+    <div class="app-item">
+
+      <span class="app-index">
+        02
+      </span>
+
+      <h3>
+        Inventario digital
+      </h3>
+
+    </div>
+
+
+    <div class="app-item">
+
+      <span class="app-index">
+        03
+      </span>
+
+      <h3>
+        Redes sociales y campañas
+      </h3>
+
+    </div>
+
+
+    <div class="app-item">
+
+      <span class="app-index">
+        04
+      </span>
+
+      <h3>
+        Experiencias inmersivas para clientes
+      </h3>
+
+    </div>
+
+  </div>
+
+
+  <p class="commercial-note">
+    El mismo concepto puede aplicarse a vehículos nuevos, seminuevos, áreas de exhibición y espacios de la agencia.
+  </p>
+
+</section>
+
+
+<!-- =========================================================
+     CTA
+========================================================= -->
+
+<section
+  class="cta"
+  aria-label="Llamado a la acción"
+>
+
+  <div
+    class="cta-scan"
+    aria-hidden="true"
+  ></div>
+
+  <div class="cta-inner">
+
+    <p class="eyebrow">
+      04 · SIGUIENTE PASO
+    </p>
+
+    <h2>
+      Esto es solo una muestra.
+    </h2>
+
+    <p class="cta-copy">
+      ViewMetricaMX transforma espacios físicos en experiencias digitales interactivas.
+    </p>
+
+    <a
+      href="#"
+      class="btn btn-primary"
+      id="whatsapp-cta"
+    >
+
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+      >
+
+        <path
+          d="M17.6 6.3A8.9 8.9 0 0012 4a8.9 8.9 0 00-7.7 13.4L3 21l3.7-1.3A8.9 8.9 0 0012 20a8.9 8.9 0 006.3-15.2z"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.6"
+          stroke-linejoin="round"
+        />
+
+      </svg>
+
+      <span>
+        QUIERO UNA DEMO
+      </span>
+
+    </a>
+
+  </div>
+
+</section>
 
 </main>
 
-<!-- ============ FOOTER ============ -->
+
+<!-- =========================================================
+     FOOTER
+========================================================= -->
+
 <footer class="site-footer">
-  <p class="footer-brand">VIEWMETRICAMX</p>
-  <p class="footer-line">Experiencias 360° · Digitalización de espacios</p>
-  <p class="footer-tag">Demo conceptual</p>
+
+  <p class="footer-brand">
+    VIEWMETRICAMX
+  </p>
+
+  <p class="footer-line">
+    Experiencias 360° · Digitalización de espacios
+  </p>
+
+  <p class="footer-tag">
+    Demo conceptual
+  </p>
+
 </footer>
 
-<script>
-  // Carga Three.js probando varios CDNs en orden. Si uno falla (bloqueado por
-  // un ad-blocker, extensión o firewall), intenta el siguiente automáticamente.
-  (function loadThree(sources, i){
-    i = i || 0;
-    function runApp(){
-      var s = document.createElement("script");
-      s.src = "script.js?v=" + Date.now();
-      document.body.appendChild(s);
-    }
-    if (i >= sources.length) {
-      console.error("[ViewMetricaMX] No se pudo cargar Three.js desde ningún CDN. Se mostrará el visor de respaldo.");
-      runApp();
-      return;
-    }
-    var script = document.createElement("script");
-    script.src = sources[i];
-    script.onload = runApp;
-    script.onerror = function(){
-      console.warn("[ViewMetricaMX] Falló CDN:", sources[i], "— probando siguiente.");
-      loadThree(sources, i + 1);
-    };
-    document.body.appendChild(script);
-  })([
-    "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js",
-    "https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js",
-    "https://unpkg.com/three@0.128.0/build/three.min.js"
-  ]);
+
+<!-- =========================================================
+     THREE.JS
+     
+     Usamos módulos ES directamente desde jsDelivr.
+     Three.js recomienda este sistema para importar la librería.
+========================================================= -->
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js"
+  }
+}
 </script>
+
+
+<!-- =========================================================
+     APP
+========================================================= -->
+
+<script
+  type="module"
+  src="script.js?v=20260824"
+></script>
+
+
 </body>
 </html>
