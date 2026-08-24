@@ -516,64 +516,22 @@ const AUTOROTATE_RESUME_DELAY = 5200;
   /* ==========================================================================
      APLICAR TEXTURA
   ========================================================================== */
+function applyTexture(texture) {
 
-  function applyTexture(texture) {
+  texture.wrapS = THREE.ClampToEdgeWrapping;
+  texture.wrapT = THREE.ClampToEdgeWrapping;
 
-    /*
-       Corrección de orientación.
+  texture.repeat.x = 1;
+  texture.offset.x = 0;
 
-       Las fotografías equirectangulares pueden venir con
-       orientación horizontal invertida.
-
-       La escala negativa de la esfera invierte la geometría,
-       pero NO necesariamente corrige la orientación visual
-       de la fotografía.
-
-       Por eso utilizamos repeat/offset para controlar el sentido.
-    */
-
-    texture.wrapS = THREE.RepeatWrapping;
-
-    texture.wrapT = THREE.ClampToEdgeWrapping;
-
-
-    /*
-       INVERSIÓN HORIZONTAL.
-
-       Si después de probarlo notas que ahora gira al sentido
-       contrario al esperado, cambia repeat.x = -1 por 1.
-
-       Para tus fotografías actuales dejamos -1.
-    */
-
-    texture.repeat.x = -1;
-
-    texture.offset.x = 1;
-
-
-    /*
-       Corrección de color.
-    */
-
-    if ("colorSpace" in texture) {
-
-      texture.colorSpace =
-        THREE.SRGBColorSpace;
-
-    }
-
-
-    /*
-       Aplicamos la textura.
-    */
-
-    sphere.material.map = texture;
-
-    sphere.material.color.set(0xffffff);
-
-    sphere.material.needsUpdate = true;
-
+  if ("colorSpace" in texture) {
+    texture.colorSpace = THREE.SRGBColorSpace;
   }
+
+  sphere.material.map = texture;
+  sphere.material.color.set(0xffffff);
+  sphere.material.needsUpdate = true;
+}
 
 
   /* ==========================================================================
