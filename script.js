@@ -1,11 +1,10 @@
-
 /* ==========================================================================
    ViewMetricaMX — Nissan V-Drive 2026 · Demo 360°
-   Visor 360° robusto para GitHub Pages + Three.js r128
+   Visor panorámico corregido
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
-   WHATSAPP
+   CONFIGURACIÓN
 -------------------------------------------------------------------------- */
 
 const WHATSAPP_NUMBER = "AQUI_MI_NUMERO";
@@ -15,10 +14,11 @@ const WHATSAPP_MESSAGE =
 
 
 /* --------------------------------------------------------------------------
-   PANORAMAS
+   POSICIONES DEL RECORRIDO
 -------------------------------------------------------------------------- */
 
 const POSITIONS = {
+
   piloto: {
     label: "PILOTO",
     file: "assets/piloto_nissan_v_drive_2026_gomez_palacio.jpg",
@@ -50,8 +50,13 @@ const POSITIONS = {
     lat: 0,
     fov: 84
   }
+
 };
 
+
+/* --------------------------------------------------------------------------
+   CONTROLES
+-------------------------------------------------------------------------- */
 
 const FOV_MIN = 32;
 const FOV_MAX = 92;
@@ -61,7 +66,7 @@ const AUTOROTATE_RESUME_DELAY = 5200;
 
 
 /* ==========================================================================
-   VISOR
+   INICIO
 ========================================================================== */
 
 (function init() {
@@ -84,7 +89,7 @@ const AUTOROTATE_RESUME_DELAY = 5200;
 
 
   /* ------------------------------------------------------------------------
-     WEBGL
+     VERIFICAR WEBGL
   ------------------------------------------------------------------------ */
 
   function hasWebGL() {
@@ -101,7 +106,7 @@ const AUTOROTATE_RESUME_DELAY = 5200;
         )
       );
 
-    } catch (error) {
+    } catch (e) {
 
       return false;
 
@@ -109,10 +114,6 @@ const AUTOROTATE_RESUME_DELAY = 5200;
 
   }
 
-
-  /* ------------------------------------------------------------------------
-     FALLBACK
-  ------------------------------------------------------------------------ */
 
   if (typeof THREE === "undefined" || !hasWebGL()) {
 
@@ -135,21 +136,23 @@ const AUTOROTATE_RESUME_DELAY = 5200;
 
     fallbackImg.src = POSITIONS.piloto.file;
 
-    const diag = fallbackEl.querySelector("p");
+    const diagP = fallbackEl.querySelector("p");
 
-    if (diag) {
+    if (diagP) {
 
-      diag.textContent =
-        "Vista 360° no disponible. " +
-        `[Three.js: ${threeOk ? "OK" : "NO"} · WebGL: ${webglOk ? "OK" : "NO"}]`;
+      diagP.textContent =
+        "Tu navegador no soporta la vista 360° interactiva.";
 
     }
 
     setupPosNavFallbackMode();
+
     setupCTA();
+
     setupReveal();
 
     return;
+
   }
 
 
@@ -169,18 +172,27 @@ const AUTOROTATE_RESUME_DELAY = 5200;
 
   let targetFov = POSITIONS.piloto.fov;
 
+
+  /* --------------------------------------------------------------------------
+     INTERACCIÓN
+  -------------------------------------------------------------------------- */
+
   let isPointerDown = false;
 
-  let pointerStartX = 0;
-  let pointerStartY = 0;
+  let onPointerDownX = 0;
+  let onPointerDownY = 0;
 
-  let pointerStartLon = 0;
-  let pointerStartLat = 0;
+  let onPointerDownLon = 0;
+  let onPointerDownLat = 0;
 
   let lastInteraction = performance.now();
 
   let userHasInteracted = false;
 
+
+  /* --------------------------------------------------------------------------
+     TEXTURAS
+  -------------------------------------------------------------------------- */
 
   const textureCache = {};
 
@@ -188,17 +200,10 @@ const AUTOROTATE_RESUME_DELAY = 5200;
 
 
   /* ==========================================================================
-     BUILD SCENE
+     CONSTRUIR ESCENA
   ========================================================================== */
 
   function buildScene() {
-
-    console.log("[ViewMetricaMX] Inicializando visor 360°...");
-
-
-    /* ------------------------------------------------------------------------
-       RENDERER
-    ------------------------------------------------------------------------ */
 
     renderer = new THREE.WebGLRenderer({
 
@@ -216,16 +221,15 @@ const AUTOROTATE_RESUME_DELAY = 5200;
     );
 
 
-    /* ------------------------------------------------------------------------
-       SCENE
-    ------------------------------------------------------------------------ */
+    /*
+       Importante:
+       No utilizamos iluminación porque el material es MeshBasicMaterial.
+       La fotografía será mostrada directamente.
+    */
+
 
     scene = new THREE.Scene();
 
-
-    /* ------------------------------------------------------------------------
-       CAMERA
-    ------------------------------------------------------------------------ */
 
     camera = new THREE.PerspectiveCamera(
 
@@ -233,41 +237,48 @@ const AUTOROTATE_RESUME_DELAY = 5200;
 
       16 / 9,
 
-      0.1,
+      1,
 
       1100
 
     );
 
 
-    camera.position.set(0, 0, 0);
-
-
-    /* ------------------------------------------------------------------------
-       360 SPHERE
-       
-       IMPORTANTE:
-       La esfera NO se escala negativamente.
-       El material utiliza THREE.BackSide para visualizar
-       la superficie desde el interior.
-    ------------------------------------------------------------------------ */
+    /*
+       ESFERA 360°
+    */
 
     const geometry = new THREE.SphereGeometry(
 
       500,
 
-      64,
+      60,
 
-      48
+      40
 
     );
 
+
+    /*
+       La cámara está dentro de la esfera.
+       Invertimos la geometría para poder ver la textura desde dentro.
+    */
+
+    geometry.scale(-1, 1, 1);
+
+
+    /*
+       Material fotográfico.
+       
+       MeshBasicMaterial evita que la imagen dependa de luces
+       de Three.js.
+    */
 
     const material = new THREE.MeshBasicMaterial({
 
       color: 0xffffff,
 
-      side: THREE.BackSide
+      toneMapped: false
 
     });
 
@@ -281,35 +292,13 @@ const AUTOROTATE_RESUME_DELAY = 5200;
     );
 
 
-    sphere.visible = true;
-
-
     scene.add(sphere);
 
 
-    /* ------------------------------------------------------------------------
-       FORZAR VISIBILIDAD DEL CANVAS
-    ------------------------------------------------------------------------ */
-
-    canvas.hidden = false;
-
-    canvas.style.display = "block";
-
-    fallbackEl.hidden = true;
-
-
-    /* ------------------------------------------------------------------------
-       RESIZE
-    ------------------------------------------------------------------------ */
-
     resizeRenderer();
 
+    animate();
 
-    /* ------------------------------------------------------------------------
-       DIAGNÓSTICO
-    ------------------------------------------------------------------------ */
-
-    const gl = renderer.getContext();
 
     console.log(
       "[ViewMetricaMX] Three.js:",
@@ -317,38 +306,8 @@ const AUTOROTATE_RESUME_DELAY = 5200;
     );
 
     console.log(
-      "[ViewMetricaMX] WebGL:",
-      gl ? "OK" : "ERROR"
+      "[ViewMetricaMX] Visor 360° inicializado correctamente."
     );
-
-    console.log(
-      "[ViewMetricaMX] GPU MAX_TEXTURE_SIZE:",
-      gl.getParameter(gl.MAX_TEXTURE_SIZE)
-    );
-
-    console.log(
-      "[ViewMetricaMX] Contenedor:",
-      stageEl.clientWidth,
-      "x",
-      stageEl.clientHeight
-    );
-
-    console.log(
-      "[ViewMetricaMX] Sphere visible:",
-      sphere.visible
-    );
-
-    console.log(
-      "[ViewMetricaMX] Scene children:",
-      scene.children.length
-    );
-
-
-    /* ------------------------------------------------------------------------
-       RENDER LOOP
-    ------------------------------------------------------------------------ */
-
-    animate();
 
   }
 
@@ -359,28 +318,24 @@ const AUTOROTATE_RESUME_DELAY = 5200;
 
   function resizeRenderer() {
 
-    if (!renderer || !camera) return;
+    const w = stageEl.clientWidth;
+    const h = stageEl.clientHeight;
 
-
-    const width = stageEl.clientWidth;
-    const height = stageEl.clientHeight;
-
-
-    if (!width || !height) return;
+    if (!w || !h) return;
 
 
     renderer.setSize(
 
-      width,
+      w,
 
-      height,
+      h,
 
       false
 
     );
 
 
-    camera.aspect = width / height;
+    camera.aspect = w / h;
 
     camera.updateProjectionMatrix();
 
@@ -388,10 +343,16 @@ const AUTOROTATE_RESUME_DELAY = 5200;
 
 
   /* ==========================================================================
-     LOAD PANORAMA
+     CARGAR PANORAMA
   ========================================================================== */
 
-  function loadPosition(key, options = {}) {
+  function loadPosition(
+
+    key,
+
+    { silent = false } = {}
+
+  ) {
 
     const cfg = POSITIONS[key];
 
@@ -413,62 +374,54 @@ const AUTOROTATE_RESUME_DELAY = 5200;
     camera.updateProjectionMatrix();
 
 
-    /* ------------------------------------------------------------------------
-       UI
-    ------------------------------------------------------------------------ */
-
     posTag.textContent = cfg.label;
 
 
-    posButtons.forEach(button => {
+    posButtons.forEach(btn => {
 
-      const active = button.dataset.pos === key;
+      const active = btn.dataset.pos === key;
 
-      button.classList.toggle(
+      btn.classList.toggle(
+
         "is-active",
+
         active
+
       );
 
-      button.setAttribute(
+      btn.setAttribute(
+
         "aria-pressed",
+
         active ? "true" : "false"
+
       );
 
     });
 
 
-    /* ------------------------------------------------------------------------
-       CACHE
-    ------------------------------------------------------------------------ */
+    /*
+       Si ya está en caché, aplicamos directamente.
+    */
 
     if (textureCache[key]) {
 
       applyTexture(textureCache[key]);
-
-      loadingEl.hidden = true;
-
-      fallbackEl.hidden = true;
-
-      canvas.hidden = false;
 
       return;
 
     }
 
 
-    /* ------------------------------------------------------------------------
-       LOADING
-    ------------------------------------------------------------------------ */
+    if (!silent) {
 
-    loadingLabel.textContent =
-      `Cargando ${cfg.label.toLowerCase()}…`;
+      loadingLabel.textContent =
+        `Cargando ${cfg.label.toLowerCase()}…`;
 
-    loadingEl.hidden = false;
+      loadingEl.hidden = false;
 
+    }
 
-    /* ------------------------------------------------------------------------
-       LOAD IMAGE
-    ------------------------------------------------------------------------ */
 
     loader.load(
 
@@ -477,26 +430,37 @@ const AUTOROTATE_RESUME_DELAY = 5200;
 
       function(texture) {
 
+        const img = texture.image;
+
+
         console.log(
+
           "[ViewMetricaMX] Panorama cargado:",
+
           cfg.file,
-          texture.image.width + "x" + texture.image.height
+
+          img
+            ? `${img.width}x${img.height}`
+            : "dimensiones desconocidas"
+
         );
 
 
-        /* --------------------------------------------------------------------
-           Three.js r128 utiliza encoding en lugar de colorSpace.
-        -------------------------------------------------------------------- */
+        /*
+           Color correcto para fotografías.
+        */
 
-        if (
-          THREE.sRGBEncoding !== undefined
-        ) {
+        if ("colorSpace" in texture) {
 
-          texture.encoding =
-            THREE.sRGBEncoding;
+          texture.colorSpace =
+            THREE.SRGBColorSpace;
 
         }
 
+
+        /*
+           Filtro lineal para mejor calidad.
+        */
 
         texture.minFilter =
           THREE.LinearFilter;
@@ -504,12 +468,15 @@ const AUTOROTATE_RESUME_DELAY = 5200;
         texture.magFilter =
           THREE.LinearFilter;
 
-        texture.generateMipmaps =
-          false;
+
+        texture.generateMipmaps = false;
 
 
-        textureCache[key] =
-          texture;
+        /*
+           Guardamos en caché.
+        */
+
+        textureCache[key] = texture;
 
 
         applyTexture(texture);
@@ -517,47 +484,22 @@ const AUTOROTATE_RESUME_DELAY = 5200;
 
         loadingEl.hidden = true;
 
-        fallbackEl.hidden = true;
-
-        canvas.hidden = false;
-
-
-        console.log(
-          "[ViewMetricaMX] Textura aplicada:",
-          key
-        );
-
       },
 
 
-      function(progress) {
-
-        if (
-          progress &&
-          progress.total
-        ) {
-
-          const percent =
-            Math.round(
-              progress.loaded /
-              progress.total *
-              100
-            );
-
-          loadingLabel.textContent =
-            `Cargando panorama ${percent}%…`;
-
-        }
-
-      },
+      undefined,
 
 
       function(error) {
 
         console.error(
-          "[ViewMetricaMX] ERROR cargando panorama:",
+
+          "[ViewMetricaMX] Error cargando panorama:",
+
           cfg.file,
+
           error
+
         );
 
 
@@ -572,126 +514,176 @@ const AUTOROTATE_RESUME_DELAY = 5200;
 
 
   /* ==========================================================================
-     APPLY TEXTURE
+     APLICAR TEXTURA
   ========================================================================== */
 
   function applyTexture(texture) {
 
-    if (!sphere || !sphere.material) {
+    /*
+       Corrección de orientación.
 
-      console.error(
-        "[ViewMetricaMX] Sphere/material no disponible."
-      );
+       Las fotografías equirectangulares pueden venir con
+       orientación horizontal invertida.
 
-      return;
+       La escala negativa de la esfera invierte la geometría,
+       pero NO necesariamente corrige la orientación visual
+       de la fotografía.
+
+       Por eso utilizamos repeat/offset para controlar el sentido.
+    */
+
+    texture.wrapS = THREE.RepeatWrapping;
+
+    texture.wrapT = THREE.ClampToEdgeWrapping;
+
+
+    /*
+       INVERSIÓN HORIZONTAL.
+
+       Si después de probarlo notas que ahora gira al sentido
+       contrario al esperado, cambia repeat.x = -1 por 1.
+
+       Para tus fotografías actuales dejamos -1.
+    */
+
+    texture.repeat.x = -1;
+
+    texture.offset.x = 1;
+
+
+    /*
+       Corrección de color.
+    */
+
+    if ("colorSpace" in texture) {
+
+      texture.colorSpace =
+        THREE.SRGBColorSpace;
 
     }
 
 
-    sphere.material.map =
-      texture;
+    /*
+       Aplicamos la textura.
+    */
 
+    sphere.material.map = texture;
 
-    sphere.material.color.set(
-      0xffffff
-    );
+    sphere.material.color.set(0xffffff);
 
-
-    sphere.material.needsUpdate =
-      true;
-
-
-    console.log(
-      "[ViewMetricaMX] Textura aplicada al material."
-    );
+    sphere.material.needsUpdate = true;
 
   }
 
 
   /* ==========================================================================
-     CAMERA / RENDER
+     RENDER LOOP
   ========================================================================== */
 
   function animate() {
 
-    requestAnimationFrame(
-      animate
-    );
+    requestAnimationFrame(animate);
 
+
+    /*
+       Rotación automática después de unos segundos.
+    */
 
     if (
+
       !isPointerDown &&
+
       userHasInteracted &&
+
       performance.now() -
       lastInteraction >
       AUTOROTATE_RESUME_DELAY
+
     ) {
 
-      lon +=
-        AUTOROTATE_SPEED;
+      lon += AUTOROTATE_SPEED;
 
     }
 
 
+    /*
+       Limitar inclinación vertical.
+    */
+
     lat = Math.max(
+
       -85,
-      Math.min(
-        85,
-        lat
-      )
+
+      Math.min(85, lat)
+
     );
 
 
+    /*
+       Conversión de coordenadas.
+    */
+
     const phi =
       THREE.MathUtils.degToRad(
+
         90 - lat
+
       );
 
 
     const theta =
       THREE.MathUtils.degToRad(
+
         lon
-      );
-
-
-    const target =
-      new THREE.Vector3(
-
-        500 *
-        Math.sin(phi) *
-        Math.cos(theta),
-
-        500 *
-        Math.cos(phi),
-
-        500 *
-        Math.sin(phi) *
-        Math.sin(theta)
 
       );
 
+
+    const target = new THREE.Vector3(
+
+      500 *
+      Math.sin(phi) *
+      Math.cos(theta),
+
+      500 *
+      Math.cos(phi),
+
+      500 *
+      Math.sin(phi) *
+      Math.sin(theta)
+
+    );
+
+
+    /*
+       Cámara al centro de la esfera.
+    */
 
     camera.position.set(
+
       0,
+
       0,
+
       0
+
     );
 
 
-    camera.lookAt(
-      target
-    );
+    camera.lookAt(target);
 
 
-    /* ------------------------------------------------------------------------
-       SMOOTH FOV
-    ------------------------------------------------------------------------ */
+    /*
+       Zoom suave.
+    */
 
     if (
+
       Math.abs(
         camera.fov -
         targetFov
       ) > 0.05
+
     ) {
 
       camera.fov +=
@@ -706,15 +698,18 @@ const AUTOROTATE_RESUME_DELAY = 5200;
 
 
     renderer.render(
+
       scene,
+
       camera
+
     );
 
   }
 
 
   /* ==========================================================================
-     INTERACTION
+     INTERACCIÓN
   ========================================================================== */
 
   function markInteraction() {
@@ -726,9 +721,11 @@ const AUTOROTATE_RESUME_DELAY = 5200;
 
 
     if (
+
       !dragHint.classList.contains(
         "is-hidden"
       )
+
     ) {
 
       dragHint.classList.add(
@@ -740,9 +737,12 @@ const AUTOROTATE_RESUME_DELAY = 5200;
   }
 
 
-  function pointerDown(
-    x,
-    y
+  function onPointerDown(
+
+    clientX,
+
+    clientY
+
   ) {
 
     isPointerDown = true;
@@ -753,20 +753,24 @@ const AUTOROTATE_RESUME_DELAY = 5200;
     );
 
 
-    pointerStartX = x;
+    onPointerDownX = clientX;
 
-    pointerStartY = y;
+    onPointerDownY = clientY;
 
-    pointerStartLon = lon;
 
-    pointerStartLat = lat;
+    onPointerDownLon = lon;
+
+    onPointerDownLat = lat;
 
   }
 
 
-  function pointerMove(
-    x,
-    y
+  function onPointerMove(
+
+    clientX,
+
+    clientY
+
   ) {
 
     if (!isPointerDown) return;
@@ -774,18 +778,18 @@ const AUTOROTATE_RESUME_DELAY = 5200;
 
     lon =
       (
-        pointerStartX -
-        x
+        onPointerDownX -
+        clientX
       ) * 0.16 +
-      pointerStartLon;
+      onPointerDownLon;
 
 
     lat =
       (
-        y -
-        pointerStartY
+        clientY -
+        onPointerDownY
       ) * 0.16 +
-      pointerStartLat;
+      onPointerDownLat;
 
 
     markInteraction();
@@ -793,10 +797,9 @@ const AUTOROTATE_RESUME_DELAY = 5200;
   }
 
 
-  function pointerUp() {
+  function onPointerUp() {
 
-    isPointerDown =
-      false;
+    isPointerDown = false;
 
 
     stageEl.classList.remove(
@@ -806,88 +809,95 @@ const AUTOROTATE_RESUME_DELAY = 5200;
   }
 
 
-  /* --------------------------------------------------------------------------
+  /* ==========================================================================
      MOUSE
-  -------------------------------------------------------------------------- */
+  ========================================================================== */
 
   stageEl.addEventListener(
-    "mousedown",
-    event => {
 
-      pointerDown(
-        event.clientX,
-        event.clientY
+    "mousedown",
+
+    function(e) {
+
+      onPointerDown(
+
+        e.clientX,
+
+        e.clientY
+
       );
 
       markInteraction();
 
     }
+
   );
 
 
   window.addEventListener(
-    "mousemove",
-    event => {
 
-      pointerMove(
-        event.clientX,
-        event.clientY
+    "mousemove",
+
+    function(e) {
+
+      onPointerMove(
+
+        e.clientX,
+
+        e.clientY
+
       );
 
     }
+
   );
 
 
   window.addEventListener(
+
     "mouseup",
-    pointerUp
+
+    onPointerUp
+
   );
 
 
-  /* --------------------------------------------------------------------------
+  /* ==========================================================================
      TOUCH
-  -------------------------------------------------------------------------- */
+  ========================================================================== */
 
-  let pinchStartDistance = null;
+  let pinchStartDist = null;
 
   let pinchStartFov = null;
 
 
   stageEl.addEventListener(
+
     "touchstart",
-    event => {
+
+    function(e) {
 
       markInteraction();
 
 
-      if (
-        event.touches.length === 1
-      ) {
+      if (e.touches.length === 1) {
 
-        pointerDown(
+        onPointerDown(
 
-          event.touches[0].clientX,
+          e.touches[0].clientX,
 
-          event.touches[0].clientY
+          e.touches[0].clientY
 
         );
 
       }
 
+      else if (e.touches.length === 2) {
 
-      if (
-        event.touches.length === 2
-      ) {
+        isPointerDown = false;
 
-        isPointerDown =
-          false;
-
-
-        pinchStartDistance =
-          touchDistance(
-            event.touches
-          );
-
+        pinchStartDist =
+          touchDistance(e.touches);
 
         pinchStartFov =
           targetFov;
@@ -895,51 +905,57 @@ const AUTOROTATE_RESUME_DELAY = 5200;
       }
 
     },
+
     { passive: true }
+
   );
 
 
   stageEl.addEventListener(
+
     "touchmove",
-    event => {
+
+    function(e) {
 
       if (
-        event.touches.length === 1 &&
+
+        e.touches.length === 1 &&
+
         isPointerDown
+
       ) {
 
-        pointerMove(
+        onPointerMove(
 
-          event.touches[0].clientX,
+          e.touches[0].clientX,
 
-          event.touches[0].clientY
+          e.touches[0].clientY
 
         );
 
       }
 
 
-      if (
-        event.touches.length === 2 &&
-        pinchStartDistance
+      else if (
+
+        e.touches.length === 2 &&
+
+        pinchStartDist
+
       ) {
 
-        const distance =
-          touchDistance(
-            event.touches
-          );
+        const dist =
+          touchDistance(e.touches);
 
 
         const scale =
-          pinchStartDistance /
-          distance;
+          pinchStartDist / dist;
 
 
         targetFov =
           clamp(
 
-            pinchStartFov *
-            scale,
+            pinchStartFov * scale,
 
             FOV_MIN,
 
@@ -953,32 +969,32 @@ const AUTOROTATE_RESUME_DELAY = 5200;
       }
 
     },
+
     { passive: true }
+
   );
 
 
   stageEl.addEventListener(
+
     "touchend",
-    event => {
 
-      if (
-        event.touches.length === 0
-      ) {
+    function(e) {
 
-        pointerUp();
+      if (e.touches.length === 0) {
 
-        pinchStartDistance =
-          null;
+        onPointerUp();
+
+        pinchStartDist = null;
 
       }
 
     }
+
   );
 
 
-  function touchDistance(
-    touches
-  ) {
+  function touchDistance(touches) {
 
     const dx =
       touches[0].clientX -
@@ -991,49 +1007,87 @@ const AUTOROTATE_RESUME_DELAY = 5200;
 
 
     return Math.sqrt(
+
       dx * dx +
       dy * dy
+
     );
 
   }
 
 
   function clamp(
+
     value,
+
     min,
+
     max
+
   ) {
 
     return Math.max(
+
       min,
-      Math.min(
-        max,
-        value
-      )
+
+      Math.min(max, value)
+
     );
 
   }
 
 
   /* ==========================================================================
-     WHEEL ZOOM
+     RUEDA DEL MOUSE
   ========================================================================== */
 
   stageEl.addEventListener(
-    "wheel",
-    event => {
 
-      event.preventDefault();
+    "wheel",
+
+    function(e) {
+
+      e.preventDefault();
 
       markInteraction();
 
 
-      targetFov =
-        clamp(
+      targetFov = clamp(
 
-          targetFov +
-          event.deltaY *
-          0.04,
+        targetFov +
+        e.deltaY * 0.04,
+
+        FOV_MIN,
+
+        FOV_MAX
+
+      );
+
+    },
+
+    { passive: false }
+
+  );
+
+
+  /* ==========================================================================
+     ZOOM IN
+  ========================================================================== */
+
+  document
+    .getElementById("zoom-in")
+    .addEventListener(
+
+      "click",
+
+      function() {
+
+        markInteraction();
+
+
+        targetFov = clamp(
+
+          targetFov - 10,
 
           FOV_MIN,
 
@@ -1041,74 +1095,68 @@ const AUTOROTATE_RESUME_DELAY = 5200;
 
         );
 
-    },
-    { passive: false }
-  );
+      }
+
+    );
 
 
   /* ==========================================================================
-     BUTTONS
+     ZOOM OUT
   ========================================================================== */
-
-  document
-    .getElementById("zoom-in")
-    .addEventListener(
-      "click",
-      () => {
-
-        markInteraction();
-
-        targetFov =
-          clamp(
-            targetFov - 10,
-            FOV_MIN,
-            FOV_MAX
-          );
-
-      }
-    );
-
 
   document
     .getElementById("zoom-out")
     .addEventListener(
+
       "click",
-      () => {
+
+      function() {
 
         markInteraction();
 
-        targetFov =
-          clamp(
-            targetFov + 10,
-            FOV_MIN,
-            FOV_MAX
-          );
+
+        targetFov = clamp(
+
+          targetFov + 10,
+
+          FOV_MIN,
+
+          FOV_MAX
+
+        );
 
       }
+
     );
 
+
+  /* ==========================================================================
+     RECENTER
+  ========================================================================== */
 
   document
     .getElementById("recenter")
     .addEventListener(
+
       "click",
-      () => {
+
+      function() {
 
         markInteraction();
+
 
         const cfg =
           POSITIONS[currentPos];
 
-        lon =
-          cfg.lon;
 
-        lat =
-          cfg.lat;
+        lon = cfg.lon;
 
-        targetFov =
-          cfg.fov;
+        lat = cfg.lat;
+
+        targetFov = cfg.fov;
 
       }
+
     );
 
 
@@ -1119,39 +1167,41 @@ const AUTOROTATE_RESUME_DELAY = 5200;
   document
     .getElementById("fullscreen-btn")
     .addEventListener(
+
       "click",
-      () => {
+
+      function() {
 
         markInteraction();
 
 
-        if (
-          !document.fullscreenElement
-        ) {
+        if (!document.fullscreenElement) {
 
-          const request =
+          const requestFullscreen =
             stageEl.requestFullscreen ||
             stageEl.webkitRequestFullscreen;
 
 
-          if (request) {
+          if (requestFullscreen) {
 
-            request.call(
+            requestFullscreen.call(
               stageEl
             );
 
           }
 
-        } else {
+        }
 
-          const exit =
+        else {
+
+          const exitFullscreen =
             document.exitFullscreen ||
             document.webkitExitFullscreen;
 
 
-          if (exit) {
+          if (exitFullscreen) {
 
-            exit.call(
+            exitFullscreen.call(
               document
             );
 
@@ -1160,42 +1210,58 @@ const AUTOROTATE_RESUME_DELAY = 5200;
         }
 
       }
+
     );
 
 
+  /* ==========================================================================
+     RESIZE
+  ========================================================================== */
+
   window.addEventListener(
+
     "resize",
+
     resizeRenderer
+
   );
 
 
   document.addEventListener(
+
     "fullscreenchange",
+
     resizeRenderer
+
   );
 
 
   /* ==========================================================================
-     POSITION NAVIGATION
+     NAVEGACIÓN ENTRE POSICIONES
   ========================================================================== */
 
   posButtons.forEach(
-    button => {
 
-      button.addEventListener(
+    function(btn) {
+
+      btn.addEventListener(
+
         "click",
-        () => {
+
+        function() {
 
           markInteraction();
 
           loadPosition(
-            button.dataset.pos
+            btn.dataset.pos
           );
 
         }
+
       );
 
     }
+
   );
 
 
@@ -1206,57 +1272,89 @@ const AUTOROTATE_RESUME_DELAY = 5200;
   document
     .getElementById("hero-cta")
     .addEventListener(
+
       "click",
-      () => {
+
+      function() {
 
         setTimeout(
-          () => {
 
-            if (
-              stageEl.focus
-            ) {
+          function() {
+
+            if (stageEl.focus) {
 
               stageEl.focus();
 
             }
 
           },
+
           500
+
         );
 
       }
+
     );
 
 
   /* ==========================================================================
-     BOOT
+     INICIO
   ========================================================================== */
 
   buildScene();
 
 
   loadPosition(
-    "piloto"
+
+    "piloto",
+
+    { silent: true }
+
   );
 
 
-  loadingEl.hidden =
-    false;
+  loadingEl.hidden = false;
 
 
   loadingLabel.textContent =
     "Preparando panorama…";
 
 
+  const checkFirstLoad =
+    setInterval(
+
+      function() {
+
+        if (textureCache.piloto) {
+
+          loadingEl.hidden = true;
+
+          clearInterval(
+            checkFirstLoad
+          );
+
+        }
+
+      },
+
+      100
+
+    );
+
+
   setTimeout(
-    () => {
+
+    function() {
 
       dragHint.classList.add(
         "is-hidden"
       );
 
     },
+
     6000
+
   );
 
 
@@ -1264,12 +1362,11 @@ const AUTOROTATE_RESUME_DELAY = 5200;
 
   setupReveal();
 
-
 })();
 
 
 /* ==========================================================================
-   FALLBACK NAVIGATION
+   FALLBACK
 ========================================================================== */
 
 function setupPosNavFallbackMode() {
@@ -1287,18 +1384,19 @@ function setupPosNavFallbackMode() {
 
 
   document
-    .querySelectorAll(
-      ".pos-btn"
-    )
+    .querySelectorAll(".pos-btn")
     .forEach(
-      button => {
 
-        button.addEventListener(
+      function(btn) {
+
+        btn.addEventListener(
+
           "click",
-          () => {
+
+          function() {
 
             const key =
-              button.dataset.pos;
+              btn.dataset.pos;
 
 
             const cfg =
@@ -1317,36 +1415,41 @@ function setupPosNavFallbackMode() {
 
 
             document
-              .querySelectorAll(
-                ".pos-btn"
-              )
+              .querySelectorAll(".pos-btn")
               .forEach(
-                item => {
+
+                function(b) {
 
                   const active =
-                    item === button;
+                    b === btn;
 
 
-                  item.classList.toggle(
+                  b.classList.toggle(
                     "is-active",
                     active
                   );
 
 
-                  item.setAttribute(
+                  b.setAttribute(
+
                     "aria-pressed",
+
                     active
                       ? "true"
                       : "false"
+
                   );
 
                 }
+
               );
 
           }
+
         );
 
       }
+
     );
 
 }
@@ -1394,22 +1497,33 @@ function setupCTA() {
 
 
 /* ==========================================================================
-   SCROLL REVEAL
+   REVEAL
 ========================================================================== */
 
 function setupReveal() {
 
   const targets =
     document.querySelectorAll(
-      ".section-head, .benefit, .app-item, .commercial-note, .cta-inner"
+
+      ".section-head, " +
+      ".benefit, " +
+      ".app-item, " +
+      ".commercial-note, " +
+      ".cta-inner"
+
     );
 
 
   targets.forEach(
-    element =>
-      element.classList.add(
+
+    function(el) {
+
+      el.classList.add(
         "reveal"
-      )
+      );
+
+    }
+
   );
 
 
@@ -1418,10 +1532,15 @@ function setupReveal() {
   ) {
 
     targets.forEach(
-      element =>
-        element.classList.add(
+
+      function(el) {
+
+        el.classList.add(
           "is-visible"
-        )
+        );
+
+      }
+
     );
 
     return;
@@ -1429,13 +1548,14 @@ function setupReveal() {
   }
 
 
-  const observer =
+  const io =
     new IntersectionObserver(
 
-      entries => {
+      function(entries) {
 
         entries.forEach(
-          entry => {
+
+          function(entry) {
 
             if (
               entry.isIntersecting
@@ -1446,13 +1566,14 @@ function setupReveal() {
               );
 
 
-              observer.unobserve(
+              io.unobserve(
                 entry.target
               );
 
             }
 
           }
+
         );
 
       },
@@ -1465,10 +1586,13 @@ function setupReveal() {
 
 
   targets.forEach(
-    element =>
-      observer.observe(
-        element
-      )
+
+    function(el) {
+
+      io.observe(el);
+
+    }
+
   );
 
 }
