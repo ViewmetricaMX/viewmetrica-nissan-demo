@@ -179,15 +179,18 @@ const AUTOROTATE_RESUME_DELAY = 5200;
 
   let isPointerDown = false;
 
-  let onPointerDownX = 0;
-  let onPointerDownY = 0;
+let onPointerDownX = 0;
+let onPointerDownY = 0;
 
-  let onPointerDownLon = 0;
-  let onPointerDownLat = 0;
+let onPointerDownLon = 0;
+let onPointerDownLat = 0;
 
-  let lastInteraction = performance.now();
+/* Inercia del movimiento */
+let velocityLon = 0;
+let velocityLat = 0;
 
-  let userHasInteracted = false;
+const INERTIA_FRICTION = 0.94;
+const MAX_INERTIA = 2.5;
 
 
   /* --------------------------------------------------------------------------
