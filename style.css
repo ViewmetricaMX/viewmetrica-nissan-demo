@@ -230,12 +230,20 @@ main > section{
 }
 
 .viewer-fallback{
-  position: absolute; inset: 0;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   gap: 12px;
   background: #08090a;
   text-align: center;
   padding: 24px;
+}
+
+.viewer-fallback[hidden]{
+  display: none !important;
 }
 .viewer-fallback img{ max-width: 100%; max-height: 70%; border-radius: var(--radius); }
 .viewer-fallback p{ color: var(--ink-dim); font-size: 0.85rem; margin:0; }
