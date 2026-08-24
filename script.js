@@ -540,21 +540,43 @@ function applyTexture(texture) {
        Rotación automática después de unos segundos.
     */
 
-    if (
+  if (!isPointerDown) {
 
-      !isPointerDown &&
+  /*
+     Inercia después de soltar el mouse o dedo.
+     La velocidad se va reduciendo gradualmente.
+  */
 
-      userHasInteracted &&
+  if (
+    Math.abs(velocityLon) > 0.001 ||
+    Math.abs(velocityLat) > 0.001
+  ) {
 
-      performance.now() -
-      lastInteraction >
-      AUTOROTATE_RESUME_DELAY
+    lon += velocityLon;
+    lat += velocityLat;
 
-    ) {
+    velocityLon *= INERTIA_FRICTION;
+    velocityLat *= INERTIA_FRICTION;
 
-      lon += AUTOROTATE_SPEED;
+  }
 
-    }
+  /*
+     Después de varios segundos sin interacción,
+     vuelve la rotación automática.
+  */
+
+  else if (
+    userHasInteracted &&
+    performance.now() -
+    lastInteraction >
+    AUTOROTATE_RESUME_DELAY
+  ) {
+
+    lon += AUTOROTATE_SPEED;
+
+  }
+
+}
 
 
     /*
