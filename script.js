@@ -249,22 +249,12 @@ const AUTOROTATE_RESUME_DELAY = 5200;
     */
 
     const geometry = new THREE.SphereGeometry(
+  500,
+  60,
+  40
+);
 
-      500,
-
-      60,
-
-      40
-
-    );
-
-
-    /*
-       La cámara está dentro de la esfera.
-       Invertimos la geometría para poder ver la textura desde dentro.
-    */
-
-    geometry.scale(-1, 1, 1);
+geometry.scale(1, 1, -1);
 
 
     /*
