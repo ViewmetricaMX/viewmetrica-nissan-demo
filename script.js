@@ -1445,39 +1445,38 @@ function setupPosNavFallbackMode() {
    WHATSAPP
 ========================================================================== */
 
-function setupCTA() {
+function setupCTA(){
 
-  const cta =
-    document.getElementById(
-      "whatsapp-cta"
-    );
-
+  const cta = document.getElementById("whatsapp-cta");
 
   if (!cta) return;
 
-
   const url =
-    `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
-      WHATSAPP_MESSAGE
-    )}`;
+    "https://wa.me/" +
+    WHATSAPP_NUMBER +
+    "?text=" +
+    encodeURIComponent(WHATSAPP_MESSAGE);
 
+  cta.href = url;
+  cta.target = "_blank";
+  cta.rel = "noopener noreferrer";
 
-  cta.setAttribute(
-    "href",
-    url
-  );
+  /*
+   * Evita que href="#" provoque que la página
+   * regrese al inicio si algo impide ejecutar
+   * correctamente la navegación.
+   */
+  cta.addEventListener("click", function(e){
 
+    e.preventDefault();
 
-  cta.setAttribute(
-    "target",
-    "_blank"
-  );
+    window.open(
+      url,
+      "_blank",
+      "noopener,noreferrer"
+    );
 
-
-  cta.setAttribute(
-    "rel",
-    "noopener noreferrer"
-  );
+  });
 
 }
 
