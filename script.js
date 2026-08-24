@@ -7,7 +7,7 @@
    Formato: código de país + número, sin espacios ni símbolos.
    Ejemplo Torreón/Gómez Palacio/Lerdo (Coahuila/Durango, MX): "528711234567"
 -------------------------------------------------------------------------- */
-const WHATSAPP_NUMBER = "528714005421";
+const WHATSAPP_NUMBER = "AQUI_MI_NUMERO";
 const WHATSAPP_MESSAGE = "Hola, vi la demo 360° del Nissan V-Drive y me gustaría conocer cómo podría aplicarse a nuestra agencia.";
 
 /* --------------------------------------------------------------------------
