@@ -716,48 +716,61 @@ function applyTexture(texture) {
   }
 
 
-  function onPointerMove(
+ function onPointerMove(clientX, clientY) {
 
-    clientX,
+  if (!isPointerDown) return;
 
-    clientY
+  const newLon =
+    (
+      onPointerDownX -
+      clientX
+    ) * 0.16 +
+    onPointerDownLon;
 
-  ) {
-
-    if (!isPointerDown) return;
-
-
-    lon =
-      (
-        onPointerDownX -
-        clientX
-      ) * 0.16 +
-      onPointerDownLon;
-
-
-    lat =
-      (
-        clientY -
-        onPointerDownY
-      ) * 0.16 +
-      onPointerDownLat;
+  const newLat =
+    (
+      clientY -
+      onPointerDownY
+    ) * 0.16 +
+    onPointerDownLat;
 
 
-    markInteraction();
-
-  }
-
-
-  function onPointerUp() {
-
-    isPointerDown = false;
+  /* Calculamos la velocidad actual del gesto */
+  velocityLon = newLon - lon;
+  velocityLat = newLat - lat;
 
 
-    stageEl.classList.remove(
-      "is-dragging"
-    );
+  /* Limitamos la velocidad para evitar saltos */
+  velocityLon = clamp(
+    velocityLon,
+    -MAX_INERTIA,
+    MAX_INERTIA
+  );
 
-  }
+  velocityLat = clamp(
+    velocityLat,
+    -MAX_INERTIA,
+    MAX_INERTIA
+  );
+
+
+  lon = newLon;
+  lat = newLat;
+
+  markInteraction();
+
+}
+
+
+ function onPointerUp() {
+
+  isPointerDown = false;
+
+  stageEl.classList.remove(
+    "is-dragging"
+  );
+
+}
 
 
   /* ==========================================================================
