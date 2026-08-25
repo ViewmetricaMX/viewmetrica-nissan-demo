@@ -10,8 +10,7 @@
 const WHATSAPP_NUMBER = "528714005421";
 
 const WHATSAPP_MESSAGE =
-  "Hola, vi la demo 360° del Nissan V-Drive y me gustaría conocer cómo podría aplicarse a nuestra agencia.";
-
+  "Hola, vi la demo 360° de ViewMetricaMX y me gustaría conocer cómo podrían aplicar una experiencia así a mi negocio.";
 
 /* --------------------------------------------------------------------------
    POSICIONES DEL RECORRIDO
