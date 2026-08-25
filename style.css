@@ -28,6 +28,14 @@ html{ scroll-behavior: smooth; }
   html{ scroll-behavior: auto; }
   *{ animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
 }
+body{
+  margin:0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
+}
 
 /* Ondas radiales ViewMetricaMX */
 body {
