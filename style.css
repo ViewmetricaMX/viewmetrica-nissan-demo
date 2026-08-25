@@ -65,6 +65,29 @@ button{ font-family: var(--font-body); }
 /* ==========================================================================
    Header
    ========================================================================== */
+.site-header {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 32px 20px 24px;
+}
+
+.viewmetrica-logo {
+    display: block;
+    width: 180px;
+    height: auto;
+}
+
+@media (max-width: 768px) {
+    .site-header {
+        padding: 24px 20px 20px;
+    }
+
+    .viewmetrica-logo {
+        width: 145px;
+    }
+}
 .site-header{
   position: sticky;
   top: 0;
