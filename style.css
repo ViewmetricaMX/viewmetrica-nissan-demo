@@ -29,13 +29,52 @@ html{ scroll-behavior: smooth; }
   *{ animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
 }
 
-body{
-  margin:0;
-  background: var(--bg);
-  color: var(--ink);
-  font-family: var(--font-body);
-  -webkit-font-smoothing: antialiased;
-  line-height: 1.5;
+/* Ondas radiales ViewMetricaMX */
+body {
+    position: relative;
+    overflow-x: hidden;
+}
+
+body::before,
+body::after {
+    content: "";
+    position: fixed;
+    left: 50%;
+    top: 45%;
+    width: 20px;
+    height: 20px;
+    border: 1px solid rgba(74, 255, 150, 0.20);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 0;
+    animation: radialWave 8s ease-out infinite;
+}
+
+body::after {
+    animation-delay: 4s;
+}
+
+@keyframes radialWave {
+    0% {
+        width: 20px;
+        height: 20px;
+        opacity: 0;
+    }
+
+    10% {
+        opacity: 0.35;
+    }
+
+    70% {
+        opacity: 0.12;
+    }
+
+    100% {
+        width: 900px;
+        height: 900px;
+        opacity: 0;
+    }
 }
 
 h1,h2,h3{
